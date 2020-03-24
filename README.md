@@ -9,6 +9,8 @@ Simple Adapter that invokes AWS lambda on recieving ceph bucket notification
 ```shell script
 $ mkdir "build"
 $ cd build
+$ export CMAKE_PREFIX_PATH=<Path to SDK build directory>
 $ cmake ../
-$ make && make install
+$ make
+$ ./ceph-lambda-adapter
 ```

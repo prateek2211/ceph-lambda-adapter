@@ -1,14 +1,13 @@
 # Minimal CMakeLists.txt for the AWS SDK for C++.
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.5)
 
-# Use shared libraries, which is the default for the AWS C++ SDK build.
-option(BUILD_SHARED_LIBS "Build shared libraries" ON)
+set(BUILD_SHARED_LIBS OFF)
 
 project(ceph-lambda-adapter)
 
 # Locate the AWS SDK for C++ package.
 # "s3" and "cloudtrail" are just example values.
-find_package(AWSSDK COMPONENTS s3 lambda)
+find_package(AWSSDK REQUIRED COMPONENTS s3)
 
 # The executable name and its sourcefiles.
 add_executable(${PROJECT_NAME} main.cpp)
