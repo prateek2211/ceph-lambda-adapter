@@ -8,7 +8,6 @@
 using namespace httplib;
 
 static std::shared_ptr<Aws::Lambda::LambdaClient> client;
-std::string lambda_arn = "";
 
 void invoke_lambda(std::string functionName, std::string payload) {
     Aws::Lambda::Model::InvokeRequest invokeRequest;
@@ -23,18 +22,18 @@ void invoke_lambda(std::string functionName, std::string payload) {
 
     if (response.IsSuccess()) {
         Aws::Lambda::Model::InvokeResult &result = response.GetResult();
-
-        Aws::IOStream &payload = result.GetPayload();
+        Aws::IOStream &pl = result.GetPayload();
         Aws::String returnedData;
-        std::getline(payload, returnedData);
+        std::getline(pl, returnedData);
         std::cout << returnedData << "\n\n";
     }
 }
 
 int main() {
+    Aws::SDKOptions options;
+    Aws::InitAPI(options);
     Aws::Client::ClientConfiguration configuration;
-    configuration.region = Aws::String("us-east-1");
-    client = Aws::MakeShared<Aws::Lambda::LambdaClient>("", configuration);
+    client = Aws::MakeShared<Aws::Lambda::LambdaClient>("TEST", configuration);
     Server s;
     s.Post("/", [](const Request &req, Response &res, const ContentReader &content_reader) {
         std::string body;
@@ -42,8 +41,8 @@ int main() {
             body.append(data, data_length);
             return true;
         });
+        res.set_content("Invoking..", "text");
         invoke_lambda("gsoc20", body);
-        std::cout << body;
     });
     s.listen("localhost", 8080);
 }

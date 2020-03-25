@@ -2,12 +2,12 @@
 cmake_minimum_required(VERSION 3.5)
 
 set(BUILD_SHARED_LIBS OFF)
-
+set(CMAKE_PREFIX_PATH ~/install)
 project(ceph-lambda-adapter)
 
 # Locate the AWS SDK for C++ package.
 # "s3" and "cloudtrail" are just example values.
-find_package(AWSSDK REQUIRED COMPONENTS s3)
+find_package(AWSSDK REQUIRED COMPONENTS s3 sns lambda)
 
 # The executable name and its sourcefiles.
 add_executable(${PROJECT_NAME} main.cpp)
