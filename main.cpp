@@ -9,31 +9,41 @@ using namespace httplib;
 
 static std::shared_ptr<Aws::Lambda::LambdaClient> client;
 
-void invoke_lambda(std::string functionName, std::string payload) {
+const char *ALLOCATION_TAG = "TEST";
+
+void invoke_lambda(const std::string &functionName, const std::string &payload, Response &httpResp) {
     Aws::Lambda::Model::InvokeRequest invokeRequest;
     invokeRequest.SetInvocationType(Aws::Lambda::Model::InvocationType::RequestResponse);
     invokeRequest.SetLogType(Aws::Lambda::Model::LogType::Tail);
     invokeRequest.SetFunctionName(functionName);
-    std::shared_ptr<Aws::IOStream> body = Aws::MakeShared<Aws::StringStream>(payload.c_str());
+    std::shared_ptr<Aws::IOStream> body = Aws::MakeShared<Aws::StringStream>(ALLOCATION_TAG);
+    *body << payload;
     invokeRequest.SetBody(body);
-//    invokeRequest.SetContentType();
-//    invokeRequest.GetBody()
+    invokeRequest.SetContentType("application/json");
+//    Aws::String b;
+//    std::getline(*invokeRequest.GetBody(), b);
+//    std::cout << b;
     auto response = client->Invoke(invokeRequest);
-
-    if (response.IsSuccess()) {
+    if (!response.IsSuccess()) {
+        std::cout << response.GetError().GetMessage() << std::endl;
+        httpResp.set_content("Failed: Could not invoke", "text/plain");
+    } else {
         Aws::Lambda::Model::InvokeResult &result = response.GetResult();
         Aws::IOStream &pl = result.GetPayload();
         Aws::String returnedData;
         std::getline(pl, returnedData);
-        std::cout << returnedData << "\n\n";
+        std::cout << "Success " << returnedData << "\n" << std::endl;
+        httpResp.set_content(returnedData, "application/json");
     }
 }
 
-int main() {
-    Aws::SDKOptions options;
+int main(int argc, char **argv) {
+    Aws::SDKOptions options = Aws::SDKOptions();
     Aws::InitAPI(options);
     Aws::Client::ClientConfiguration configuration;
-    client = Aws::MakeShared<Aws::Lambda::LambdaClient>("TEST", configuration);
+    configuration.verifySSL = true;
+    configuration.connectTimeoutMs = 30000;
+    client = Aws::MakeShared<Aws::Lambda::LambdaClient>(ALLOCATION_TAG, configuration);
     Server s;
     s.Post("/", [](const Request &req, Response &res, const ContentReader &content_reader) {
         std::string body;
@@ -41,8 +51,7 @@ int main() {
             body.append(data, data_length);
             return true;
         });
-        res.set_content("Invoking..", "text");
-        invoke_lambda("gsoc20", body);
+        invoke_lambda("gsoc20", body, res);
     });
     s.listen("localhost", 8080);
 }
