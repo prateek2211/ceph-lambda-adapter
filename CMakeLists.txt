@@ -13,7 +13,7 @@ find_package(Boost 1.72.0 REQUIRED COMPONENTS)
 include_directories(${Boost_INCLUDE_DIRS})
 
 # The executable name and its sourcefiles.
-add_executable(${PROJECT_NAME} main.cpp sns.cpp)
+add_executable(${PROJECT_NAME} main.cpp aws/sns.cpp aws/lambda.cpp)
 
 # Build using the C++ standard version 11.
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_11)

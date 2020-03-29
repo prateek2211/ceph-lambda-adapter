@@ -1,7 +1,8 @@
 #include <boost/lockfree/queue.hpp>
 #include <string>
 #include <utility>
-
+#include <aws/sns/SNSClient.h>
+#include <aws/sns/model/PublishRequest.h>
 
 namespace sns {
     static const int STATUS_OK = 1;
@@ -27,6 +28,7 @@ namespace sns {
     public:
         int publish(const std::string &message, const std::string &topic) {
             messageQueue.push(new message_t(message, topic));
+            return STATUS_OK;
         }
     };
 
@@ -36,5 +38,19 @@ namespace sns {
         return manager->publish(message, topic);
     }
 
+    void publish_message(const std::string message, const std::string arn) {
+        Aws::SNS::Model::PublishRequest req;
+        req.SetMessage(message);
+        req.SetTopicArn(arn);
+        Aws::SNS::SNSClient client;
+
+        auto result = client.Publish(req);
+        if (result.IsSuccess()) {
+            std::cout << "Published..." << std::endl;
+        } else {
+            std::cout << result.GetError().GetMessage() << std::endl;
+        }
+
+    }
 }
 
