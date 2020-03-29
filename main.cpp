@@ -4,6 +4,7 @@
 #include <aws/lambda/model/InvokeRequest.h>
 #include <iostream>
 #include "httplib.h"
+#include <aws/core/utils/json/JsonSerializer.h>
 
 using namespace httplib;
 
@@ -51,6 +52,8 @@ int main(int argc, char **argv) {
             body.append(data, data_length);
             return true;
         });
+        Aws::Utils::Json::JsonValue jsonValue(body);
+        jsonValue.AsObject(jsonValue);
         invoke_lambda("gsoc20", body, res);
     });
     s.listen("localhost", 8080);
