@@ -6,6 +6,7 @@ Simple Adapter that invokes AWS lambda on recieving ceph bucket notification
 * AWS SDK for C++
 
 ## Build Instructions
+* Make sure that your aws credentials are stored in ~/aws/credentials or are present in the environment variables.  
 ```shell script
 $ mkdir "build"
 $ cd build
