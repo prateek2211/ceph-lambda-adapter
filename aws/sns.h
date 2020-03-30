@@ -10,5 +10,7 @@
 #include <string>
 
 namespace sns {
-    void publish_message(std::string message, std::string arn);
+    int publish(const std::string &message, const std::string &topic);
+
+    void init();
 };

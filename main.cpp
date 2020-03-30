@@ -17,8 +17,9 @@ int main(int argc, char **argv) {
             body.append(data, data_length);
             return true;
         });
-//        sns::publish_message(body, "arn:aws:sns:us-east-1:125341253834:gsoc20-ceph");
-        lambda::invoke_lambda("gsoc20", body, res);
+        sns::init();
+        sns::publish(body, "arn:aws:sns:us-east-1:125341253834:gsoc20-ceph");
+//        lambda::invoke_lambda("gsoc20", body, res);
     });
     s.listen("localhost", 8080);
 }

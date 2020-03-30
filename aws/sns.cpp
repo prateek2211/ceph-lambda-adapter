@@ -19,38 +19,48 @@ namespace sns {
     class Manager {
     private:
         MessageQueue messageQueue;
+        std::thread runner;
+
+        void publish_internal(message_t *msg) {
+            std::cout << "Publishing.." << std::endl;
+            Aws::SNS::Model::PublishRequest req;
+            req.SetMessage(msg->message);
+            req.SetTopicArn(msg->topic);
+            Aws::SNS::SNSClient client;
+
+            auto result = client.Publish(req);
+            if (result.IsSuccess()) {
+                std::cout << "Published..." << std::endl;
+            } else {
+                std::cout << result.GetError().GetMessage() << std::endl;
+            }
+        }
 
 //    Works on messages in the queque
         void run() {
-
+            while (true) {
+                const auto count = messageQueue.consume_all(
+                        std::bind(&Manager::publish_internal, this, std::placeholders::_1));
+            }
         }
 
     public:
+        Manager() : messageQueue(10), runner(&Manager::run, this) {}
+
         int publish(const std::string &message, const std::string &topic) {
-            messageQueue.push(new message_t(message, topic));
+            messageQueue.push(new message_t(topic, message));
             return STATUS_OK;
         }
     };
 
     static Manager *manager;
 
-    int publish(const std::string &message, const std::string &topic) {
-        return manager->publish(message, topic);
+    void init() {
+        manager = new Manager();
     }
 
-    void publish_message(const std::string message, const std::string arn) {
-        Aws::SNS::Model::PublishRequest req;
-        req.SetMessage(message);
-        req.SetTopicArn(arn);
-        Aws::SNS::SNSClient client;
-
-        auto result = client.Publish(req);
-        if (result.IsSuccess()) {
-            std::cout << "Published..." << std::endl;
-        } else {
-            std::cout << result.GetError().GetMessage() << std::endl;
-        }
-
+    int publish(const std::string &message, const std::string &topic) {
+        return manager->publish(message, topic);
     }
 }
 
