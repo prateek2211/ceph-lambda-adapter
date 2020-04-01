@@ -12,5 +12,5 @@
 namespace sns {
     int publish(const std::string &message, const std::string &topic);
 
-    void init();
+    bool init();
 };
