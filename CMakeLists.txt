@@ -4,10 +4,9 @@ cmake_minimum_required(VERSION 3.5)
 set(BOOST_ROOT /opt/ceph)
 set(BUILD_SHARED_LIBS OFF)
 set(CMAKE_PREFIX_PATH ~/install)
-project(ceph-lambda-adapter)
+project(ceph-aws-adapter)
 
 # Locate the AWS SDK for C++ package.
-# "s3" and "cloudtrail" are just example values.
 find_package(AWSSDK REQUIRED COMPONENTS s3 sns lambda)
 find_package(Boost 1.72.0 REQUIRED COMPONENTS)
 include_directories(${Boost_INCLUDE_DIRS})

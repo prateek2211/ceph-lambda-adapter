@@ -11,5 +11,7 @@
 #include "../httplib.h"
 
 namespace lambda {
-    void invoke_lambda(const std::string &functionName, const std::string &payload, httplib::Response &httpResp);
+    int publish(const std::string &payload, const std::string &function_name);
+
+    bool init();
 }
